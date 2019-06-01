@@ -12,9 +12,14 @@ def ssdb_client():
 
 
 # 重置股票代码列表
-def reset_codelist_ssdb():
+def reset_codelist_ssdb(id=None):
     c = ssdb_client()
-    c.qclear(key)
+    if id:
+        _key = key + "_" + id
+    else:
+        _key = key
+
+    c.qclear(_key)
     engine = sql_model.get_conn()
 
     sql = "select * from stock_basics order by code asc"
@@ -22,16 +27,20 @@ def reset_codelist_ssdb():
     code_list = df['code']
     num = 0
     for s in code_list:
-        c.qpush_back(key, s)
-        print(s)
+        c.qpush_back(_key, s)
+        # print(s)
         num += 1
     print(num)
 
 
 # 获取下一个股票代码
-def get_next_code():
+def get_next_code(id=None):
+    if id:
+        _key = key + "_" + id
+    else:
+        _key = key
     c = ssdb_client()
-    value = c.qpop_front(key)
+    value = c.qpop_front(_key)
     if value:
         value = str(value, encoding='utf-8')
     return value

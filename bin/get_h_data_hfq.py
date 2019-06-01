@@ -4,6 +4,7 @@ import sql_model
 import pandas as pd
 import common
 import debug
+from debug import p
 import traceback
 import datetime
 from urllib.request import ProxyHandler, build_opener, install_opener
@@ -11,6 +12,11 @@ import requests
 import code_ssdb
 import threading
 import os
+
+# conn = ts.get_apis()
+# stock_data = ts.get_h_data('sz000001', start='2017-12-01', autype='hfq')
+# # stock_data = ts.bar('sz600000', conn=conn, start_date='2017-12-01', adj='hfq')
+# debug.p(stock_data)
 
 def get_h_data(code, threadName):
     # engine = sql_model.get_conn()
@@ -32,14 +38,24 @@ def get_h_data(code, threadName):
     df = pd.read_sql(sql, engine)
     if not df.empty:
         start_date = df.loc[0, ['tDateTime']].values[0] + datetime.timedelta(days=1)
-        start_time = datetime.datetime.strptime(str(start_date), "%Y-%m-%d")
         # s = start_datetime.strftime("%Y-%m-%d")
         date_str = "2016-11-30 13:53:59"
         # datetime.datetime.strptime(date_str, "%Y-%m-%d %H:%M:%S")
         # start_year = t.year
     else:
         start_date = "1990-01-01"
-        start_time = datetime.datetime.strptime(str(start_date), "%Y-%m-%d")
+
+    # 日期字符串转换为日期格式
+    start_time = datetime.datetime.strptime(str(start_date), "%Y-%m-%d")
+
+    # 判断开始时间如果是礼拜六, 则加两天
+    weekday = start_time.weekday()
+    if weekday == 5:
+        start_time = start_time + datetime.timedelta(days=2)
+        if start_time.strftime("%Y-%m-%d") == datetime.datetime.now().strftime("%Y-%m-%d") and datetime.datetime.now().hour < 15:
+            print("\n")
+            print("%s %s %s 无需更新" % (threadName, code, start_time))
+            return 1
 
     while start_time < datetime.datetime.now():
         try:
@@ -49,6 +65,7 @@ def get_h_data(code, threadName):
 
             # if start_time >= datetime.datetime.now():
             #     continue
+
 
             end_time = start_time + datetime.timedelta(days=365)
             # end = str(end_year) + "-01-01"
@@ -95,7 +112,10 @@ def get_h_data(code, threadName):
 
 # 获取所有股票
 def get_data(threadName):
+    # 将所有股票代码列入待获取列表中
+    code_ssdb.reset_codelist_ssdb()
     while 1 == 1:
+        # 从列表去除
         code = code_ssdb.get_next_code()
         if code:
             print("%s: %s begin" % (threadName, code))

@@ -122,8 +122,8 @@ def get_mack_apex(code):
 
 
 engine = sql_model.get_conn()
-# sql = "select * from stock_basics order by code asc"
-sql = "select * from stock_basics where code= '000001' order by code asc"
+sql = "select * from stock_basics order by code asc"
+# sql = "select * from stock_basics where code > '601312' order by code asc"
 df = pd.read_sql(sql, engine)
 code_list = df['code']
 

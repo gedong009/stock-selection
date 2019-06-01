@@ -8,6 +8,33 @@ import traceback
 import datetime
 from urllib.request import urlopen, Request, ProxyHandler, build_opener, install_opener
 import requests
+import test
+from threading import Thread
+
+# global name
+# print(name)
+
+def work():
+    print("sdf")
+    test.test()
+
+
+if __name__ == "__main__":
+    print("sdf")
+    t1 = Thread(target=work)
+    t2 = Thread(target=work)
+
+    t1.start()
+    t2.start()
+
+
+
+
+
+
+
+
+exit()
 #
 # a = requests.get("http://112.124.4.247:5010/get/").text
 # print(a)

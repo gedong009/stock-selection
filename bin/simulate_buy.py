@@ -3,6 +3,7 @@ import pymysql
 import sql_model
 import pandas as pd
 import numpy as np
+from debug import p
 import debug
 
 def simulate_buy(code):
@@ -119,13 +120,15 @@ def simulate_buy(code):
     return df
 
 engine = sql_model.get_conn()
-sql = "select * from stock_basics"
+# sql = "select * from stock_basics"
+sql = "SELECT DISTINCT sCode FROM stock_daily_macd_deviate order by sCode desc"
 df = pd.read_sql(sql, engine)
-code_list = df['code']
+code_list = df['sCode']
 
 buy_info = pd.DataFrame()
 for s in code_list:
     print(s + " begin ")
+    p(simulate_buy(s))
     buy_info = buy_info.append(simulate_buy(s), ignore_index=True)
     # aField = ['sCode', 'tDateTime', 'iEmaShort', 'iEmaLong', 'iDif', 'iDea', 'iBar']
     print(s + " end ")
